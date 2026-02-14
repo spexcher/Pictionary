@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pictionary by Spexcher - Online Multiplayer Drawing Game</title>
+
+</head>
+<body>
+    <div id="app">
+        <div class="top-controls">
+            <button id="themeToggleBtn" class="btn btn-small btn-secondary">Dark Mode</button>
+            <button id="openScoresBtnTop" class="btn btn-small btn-secondary">Scores</button>
+        </div>
+        <!-- Loading screen -->
+        <div id="loading" class="screen">
+            <div class="loading-content">
+                <h1>Pictionary by Spexcher</h1>
+                <div class="spinner"></div>
+                <p>Connecting to server...</p>
+            </div>
+        </div>
+
+        <!-- Main menu -->
+        <div id="mainMenu" class="screen hidden">
+            <div class="menu-content">
+                <h1>Pictionary by Spexcher</h1>
+                <p class="creator-subtle">
+                    crafted by Gourab Modak (
+                    <a href="https://spexcher.vercel.app" target="_blank" rel="noopener noreferrer">spexcher</a>
+                    )
+                </p>
+                <div class="form-group">
+                    <label for="playerName">Your Name</label>
+                    <input type="text" id="playerName" name="playerName" maxlength="20" placeholder="Enter your name" required>
+                </div>
+                <div class="menu-buttons">
+                    <button id="createRoomBtn" class="btn btn-primary">Create Room</button>
+                    <button id="joinRoomBtn" class="btn btn-secondary">Join Room</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create room screen -->
+        <div id="createRoom" class="screen hidden">
+            <div class="form-content">
+                <h2>Create Room</h2>
+                <form id="createRoomForm">
+                    <div class="form-group">
+                        <label for="roomName">Room Name</label>
+                        <input type="text" id="roomName" name="roomName" required maxlength="30">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="rounds">Number of Rounds</label>
+                        <input type="number" id="rounds" name="rounds" min="1" max="10" value="5">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="timerMultiplier">Timer Multiplier (0.5x - 2.0x)</label>
+                        <input type="range" id="timerMultiplier" name="timerMultiplier" min="0.5" max="2" step="0.1" value="1">
+                        <span id="multiplierValue">1.0x</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="difficulty">Word Difficulty</label>
+                        <select id="difficulty" name="difficulty">
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                            <option value="mixed" selected>Mixed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="maxPlayers">Max Players</label>
+                        <select id="maxPlayers" name="maxPlayers">
+                            <option value="3">3 Players (Minimum)</option>
+                            <option value="4">4 Players</option>
+                            <option value="5">5 Players</option>
+                            <option value="6">6 Players</option>
+                            <option value="7">7 Players</option>
+                            <option value="8" selected>8 Players</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="isPrivate" name="isPrivate">
+                            Private Room
+                        </label>
+                    </div>
+                    
+                    <div class="form-group hidden" id="passwordGroup">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Create Room</button>
+                        <button type="button" id="cancelCreate" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Join room screen -->
+        <div id="joinRoom" class="screen hidden">
+            <div class="form-content">
+                <h2>Join Room</h2>
+                <form id="joinRoomForm">
+                    <div class="form-group">
+                        <label for="roomId">Room ID</label>
+                        <input type="text" id="roomId" name="roomId" required>
+                    </div>
+                    
+                    <div class="form-group" id="joinPasswordGroup">
+                        <label for="joinPassword">Password (for private rooms)</label>
+                        <input type="password" id="joinPassword" name="joinPassword">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Join Room</button>
+                        <button type="button" id="cancelJoin" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Room lobby -->
+        <div id="roomLobby" class="screen hidden">
+            <div class="lobby-content">
+                <div class="lobby-header">
+                    <h2 id="roomNameDisplay">Room Name</h2>
+                    <div class="room-info">
+                        <span id="roomCodeDisplay">Room Code: ABCD1234</span>
+                        <button id="copyRoomCode" class="btn btn-small">Copy</button>
+                    </div>
+                </div>
+                
+                <div class="game-settings">
+                    <h3>Game Settings</h3>
+                    <div class="settings-grid">
+                        <div class="setting-item">
+                            <span>Rounds:</span>
+                            <span id="roundsDisplay">5</span>
+                        </div>
+                        <div class="setting-item">
+                            <span>Timer:</span>
+                            <span id="timerDisplay">1.0x</span>
+                        </div>
+                        <div class="setting-item">
+                            <span>Difficulty:</span>
+                            <span id="difficultyDisplay">Mixed</span>
+                        </div>
+                        <div class="setting-item">
+                            <span>Players:</span>
+                            <span id="playersCountDisplay">1/8</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="players-list">
+                    <h3>Players</h3>
+                    <div id="playersList"></div>
+                </div>
+                
+                <div class="lobby-actions">
+                    <button id="startGameBtn" class="btn btn-primary hidden" disabled>Start Game</button>
+                    <button id="openScoresBtnLobby" class="btn btn-secondary">Scores</button>
+                    <button id="leaveLobbyBtn" class="btn btn-secondary">Leave Room</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game screen -->
+        <div id="gameScreen" class="screen hidden">
+            <div class="game-layout">
+                <!-- Left sidebar -->
+                <div class="sidebar">
+                    <div class="game-info">
+                        <div class="timer">
+                            <span id="timeDisplay">60</span>
+                        </div>
+                        <div class="round-info">
+                            <span>Round <span id="currentRound">1</span>/<span id="totalRounds">5</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="players-list-game">
+                        <h4>Players</h4>
+                        <div id="gamePlayersList"></div>
+                    </div>
+                    
+                    <div class="drawing-tools hidden" id="drawingTools">
+                        <h4>Tools</h4>
+                        <div class="tool-group">
+                            <button class="tool-btn active" data-tool="pen" title="Pen">✏️</button>
+                            <button class="tool-btn" data-tool="eraser" title="Eraser">🧹</button>
+                        </div>
+                        <div class="color-group">
+                            <input type="color" id="colorPicker" value="#000000">
+                            <div class="preset-colors">
+                                <button class="color-preset" data-color="#000000" style="background: #000000"></button>
+                                <button class="color-preset" data-color="#FF0000" style="background: #FF0000"></button>
+                                <button class="color-preset" data-color="#00FF00" style="background: #00FF00"></button>
+                                <button class="color-preset" data-color="#0000FF" style="background: #0000FF"></button>
+                                <button class="color-preset" data-color="#FFFF00" style="background: #FFFF00"></button>
+                                <button class="color-preset" data-color="#FF00FF" style="background: #FF00FF"></button>
+                            </div>
+                        </div>
+                        <div class="brush-group">
+                            <label>Brush Size:</label>
+                            <input type="range" id="brushSize" min="1" max="20" value="3">
+                            <span id="brushSizeDisplay">3</span>
+                        </div>
+                        <button id="clearCanvas" class="btn btn-small btn-danger">Clear Canvas</button>
+                    </div>
+                </div>
+
+                <!-- Main game area -->
+                <div class="main-game">
+                    <div class="word-display" id="wordDisplay">
+                        <div class="word-hint" id="wordHint"></div>
+                        <div class="category-hint" id="categoryHint"></div>
+                    </div>
+                    
+                    <div class="canvas-container">
+                        <canvas id="drawingCanvas"></canvas>
+                        <div class="canvas-overlay hidden" id="canvasOverlay">
+                            <div class="message">Waiting for drawer...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="guess-section" id="guessSection">
+                        <div class="guess-options" id="guessOptions"></div>
+                        <div class="guess-input hidden" id="guessInput">
+                            <input type="text" id="guessField" placeholder="Type your guess..." maxlength="50">
+                            <button id="submitGuess" class="btn btn-primary">Guess</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right sidebar -->
+                <div class="sidebar">
+                    <div class="chat-section">
+                        <h4>Guesses & Reactions</h4>
+                        <div class="chat-messages" id="chatMessages"></div>
+                        <button id="openScoresBtnGame" class="btn btn-secondary btn-small">Live Scores</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results screen -->
+        <div id="resultsScreen" class="screen hidden">
+            <div class="results-content">
+                <h2>Game Over!</h2>
+                <div class="winner-announcement">
+                    <h3 id="winnerName">Winner Name</h3>
+                    <p id="winnerScore">Score: 100</p>
+                </div>
+                <div class="final-standings">
+                    <h4>Final Standings</h4>
+                    <div id="finalStandings"></div>
+                </div>
+                <div class="results-actions">
+                    <button id="playAgainBtn" class="btn btn-primary">Play Again</button>
+                    <button id="backToMenuBtn" class="btn btn-secondary">Main Menu</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="scoreDialog" class="score-dialog hidden">
+            <div class="score-dialog-content">
+                <div class="score-dialog-header">
+                    <h3>Live Scores</h3>
+                    <button id="closeScoresBtn" class="btn btn-small btn-secondary">Close</button>
+                </div>
+                <div id="scoreDialogList"></div>
+            </div>
+        </div>
+    </div>
+    <div class="creator-credit">
+        <span>Created by Gourab Modak (spexcher)</span>
+        <a href="https://spexcher.vercel.app" target="_blank" rel="noopener noreferrer">Portfolio</a>
+        <a href="https://github.com/spexcher" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://linkedin.com/in/gourabmodak" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+    </div>
+
+</body>
+</html>

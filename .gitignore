@@ -1,0 +1,34 @@
+node_modules/
+dist/
+*.log
+.env
+.env.local
+.env.*
+!.env.example
+.DS_Store
+*.tsbuildinfo
+
+# OS / editor artifacts
+Thumbs.db
+.idea/
+.vscode/
+
+# Local runtime artifacts
+nul
+coverage/
+.nyc_output/
+
+# Sensitive key/cert material
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# Local databases
+*.sqlite
+*.sqlite3
+*.db
